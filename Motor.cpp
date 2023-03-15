@@ -7,9 +7,9 @@ unsigned long Motor::chechBoundaries(unsigned long command)
     if (started == false) {
         return MOT_MINIMUM;
     }
-    if (command < MOT_START_MINIMUM)
+    if (command < MOT_MINIMUM)
     {
-        command = MOT_START_MINIMUM;
+        command = MOT_MINIMUM;
     }
     if (command > MOT_MAX)
     {
@@ -47,4 +47,8 @@ void Motor::doCommand() {
     if (now - this->timer >= 20000) {
       this->timer = now;
     }*/
+}
+
+void Motor::forceCommand(unsigned long command) {
+  this->serv.writeMicroseconds(command);
 }

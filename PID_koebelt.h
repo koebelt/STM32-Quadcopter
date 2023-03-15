@@ -8,8 +8,9 @@ class PID {
 
   void compute();
   void setInput(float input){_input = input;};
-  void setSetpoint(float setpoint){_setpoint = _setpoint;};
+  void setSetpoint(float setpoint){_setpoint = setpoint;};
   float getOutput(){return _output;};
+  void resetIntegral() {_integral = 0.0;};
 
   private:
   float _error;

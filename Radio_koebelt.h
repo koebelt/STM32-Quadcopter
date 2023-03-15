@@ -63,8 +63,10 @@ class Radio {
             _radio.startListening();
             _startMillis = millis();
                 if (_radio.available()) {
-                    while (_radio.available())
+                    while (_radio.available()) {
+                        _remoteDataOld = _remoteData;
                         _radio.read(&_remoteData, sizeof(struct remoteData));
+                    }
                 }
         }
     };
@@ -83,6 +85,8 @@ class Radio {
     unsigned long _startMillis;
     unsigned long _stopMillis;
     struct remoteData _remoteData;
+    struct remoteData _remoteDataOld;
+    
     RF24 _radio;
 };
 
