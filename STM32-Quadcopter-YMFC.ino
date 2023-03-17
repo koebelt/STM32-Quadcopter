@@ -6,10 +6,13 @@
 
 
 MPU6050 mpu6050(Wire);
-PID yawPID(1, 0.01, 0, 200);
-//PID yawPID(0, 0, 0, 400);
-PID pitchPID(1.0, 0.02, 15, 400);
-PID rollPID(1.0, 0.02, 15, 400);
+float yaw, pitch, roll = 0;
+//PID yawPID(2, 0.00, 0, 200);
+PID yawPID(0.6, 0, 0, 400);
+//PID pitchPID(0.8, 0.005, 15, 400);
+PID pitchPID(0.6, 0.00, 12.5, 400);
+//PID rollPID(0.8, 0.005, 15, 400);
+PID rollPID(0.6, 0.00, 12.5, 400);
 PID throttlePID(2.5, 0, 0, 400);
 Motor *mA;
 Motor *mB;
@@ -94,14 +97,21 @@ void loop() {
   radio.listener();
 
   mpu6050.update();
+  yaw = yaw * 0.99 + mpu6050.getGyroZ() * 0.01;
+  pitch = pitch * 0.99 + mpu6050.getGyroY() * 0.01;
+  //pitch = pitch * 0.95 - mpu6050.getAccX() * 0.2;
+  roll = roll * 0.99 + mpu6050.getGyroX() * 0.01;
+  //roll = roll * 0.95 - mpu6050.getAccY() * 0.2;
 
-  yawPID.setInput(mpu6050.getGyroZ());
+  yawPID.setInput(yaw);
   yawPID.setSetpoint(0);
   
-  pitchPID.setInput(mpu6050.getAngleY());
+  //pitchPID.setInput(mpu6050.getAngleY());
+  pitchPID.setInput(pitch);
   pitchPID.setSetpoint(radio._remoteData.rjoystick.y);
   
-  rollPID.setInput(mpu6050.getAngleX());
+  //rollPID.setInput(mpu6050.getAngleX());
+  rollPID.setInput(roll);
   rollPID.setSetpoint(radio._remoteData.rjoystick.x);
   
   throttlePID.setInput(mpu6050.getAccZ() - 1);
@@ -133,14 +143,16 @@ void loop() {
       mC->setCommand(1000);
       mD->setCommand(1000);
   }
-  Serial1.print("angle : ");
-  Serial1.print(mpu6050.getGyroZ());
-  Serial1.print("\tyawPID : ");
-  Serial1.print(yawPID.getOutput());
-  /*Serial1.print("\tpitchPID : ");
+  /*Serial1.print("angle : ");
+  Serial1.print(batteryVoltage);
+  Serial1.print("\tangle1 : ");
+  Serial1.println(1/ batteryVoltage);
+  /*Serial1.print("\tyawPID : ");
+  Serial1.print(yawPID.getOutput());*/
+  /*Serial1.print("pitchPID : ");
   Serial1.print(pitchPID.getOutput());
   Serial1.print(" \trollPID : ");
-  Serial1.print(rollPID.getOutput());
+  Serial1.println(rollPID.getOutput());
   /*Serial1.print(" throttlePID : ");
   Serial1.println(throttlePID.getOutput());
   /*Serial1.print("lX: ");
@@ -172,14 +184,14 @@ void loop() {
   if (started) {
     mA->setCommand((throttle - throttlePID.getOutput() - rollPID.getOutput() + pitchPID.getOutput() - yawPID.getOutput()) * 0.94);
     mB->setCommand((throttle - throttlePID.getOutput() + rollPID.getOutput() + pitchPID.getOutput() + yawPID.getOutput()) * 0.94);
-    mC->setCommand((throttle - throttlePID.getOutput() - rollPID.getOutput() - pitchPID.getOutput() + yawPID.getOutput()) * 1.07);
-    mD->setCommand((throttle - throttlePID.getOutput() + rollPID.getOutput() - pitchPID.getOutput() - yawPID.getOutput()) * 1.08);
+    mC->setCommand((throttle - throttlePID.getOutput() - rollPID.getOutput() - pitchPID.getOutput() + yawPID.getOutput()) * 1.075 * (0.92 + (1 / batteryVoltage)));
+    mD->setCommand((throttle - throttlePID.getOutput() + rollPID.getOutput() - pitchPID.getOutput() - yawPID.getOutput()) * 1.085 * (0.92 + (1 / batteryVoltage)));
   }
   mA->doCommand();
   mB->doCommand();
   mC->doCommand();
   mD->doCommand();
-  Serial1.print("\tmotA : ");
+  /*Serial1.print("\tmotA : ");
   Serial1.print(mA->getCommand());
   Serial1.print("\tmotB : ");
   Serial1.print(mB->getCommand());
@@ -188,7 +200,7 @@ void loop() {
   Serial1.print("\tmotD : ");
   Serial1.println(mD->getCommand());
   
-  //radio.send("message");
+  //radio.send("message");*/
 
   while (micros() - loop_timer < 4000);  //We wait until 4000us are passed.
   loop_timer = micros();  

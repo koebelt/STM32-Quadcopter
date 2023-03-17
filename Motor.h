@@ -4,7 +4,7 @@
 #include <Servo.h>
 #include <Arduino.h>
 
-#define MOT_START_MINIMUM 1100 // µs nécessaire pour décoller et avoir correction d'assiette possible
+#define MOT_START_MINIMUM 1150 // µs nécessaire pour décoller et avoir correction d'assiette possible
 #define MOT_MINIMUM 1000 // µs min pour l'ESC
 #define MOT_MAX 2000
 
