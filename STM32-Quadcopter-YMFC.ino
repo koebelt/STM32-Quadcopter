@@ -7,13 +7,20 @@
 
 MPU6050 mpu6050(Wire);
 float yaw, pitch, roll = 0;
-//PID yawPID(2, 0.00, 0, 200);
-PID yawPID(0.6, 0, 0, 400);
-//PID pitchPID(0.8, 0.005, 15, 400);
-PID pitchPID(0.6, 0.00, 12.5, 400);
-//PID rollPID(0.8, 0.005, 15, 400);
-PID rollPID(0.6, 0.00, 12.5, 400);
-PID throttlePID(2.5, 0, 0, 400);
+//PID yawPID(0, 0.00, 0, 200);
+PID yawPID(0.7, 0, 0, 400);
+PID pitchPID(0.6, 0.00, 25, 400);
+
+// PID pitchPID(0.6, 0.00, 25, 400); New best yet
+// pitch = pitch * 0.995 + mpu6050.getGyroY() * 0.005; // new best yet
+
+//PID pitchPID(0.6, 0.00, 12.5, 400); // OLD best yet
+//pitch = pitch * 0.99 + mpu6050.getGyroY() * 0.01; OLD BEST YET
+
+
+PID rollPID(0.6, 0.00, 25, 400);
+
+PID throttlePID(0.3, 0.004, 0, 400);
 Motor *mA;
 Motor *mB;
 Motor *mC;
@@ -97,24 +104,24 @@ void loop() {
   radio.listener();
 
   mpu6050.update();
-  yaw = yaw * 0.99 + mpu6050.getGyroZ() * 0.01;
-  pitch = pitch * 0.99 + mpu6050.getGyroY() * 0.01;
+  yaw = yaw * 0.995 + mpu6050.getGyroZ() * 0.005;
+  pitch = pitch * 0.995 + mpu6050.getGyroY() * 0.005;
   //pitch = pitch * 0.95 - mpu6050.getAccX() * 0.2;
-  roll = roll * 0.99 + mpu6050.getGyroX() * 0.01;
+  roll = roll * 0.995 + mpu6050.getGyroX() * 0.005;
   //roll = roll * 0.95 - mpu6050.getAccY() * 0.2;
 
   yawPID.setInput(yaw);
-  yawPID.setSetpoint(0);
+  yawPID.setSetpoint(radio._remoteData.rjoystick.y / 5);
   
   //pitchPID.setInput(mpu6050.getAngleY());
   pitchPID.setInput(pitch);
-  pitchPID.setSetpoint(radio._remoteData.rjoystick.y);
+  pitchPID.setSetpoint(radio._remoteData.rjoystick.y / 3);
   
   //rollPID.setInput(mpu6050.getAngleX());
   rollPID.setInput(roll);
-  rollPID.setSetpoint(radio._remoteData.rjoystick.x);
+  rollPID.setSetpoint(radio._remoteData.rjoystick.x / 3);
   
-  throttlePID.setInput(mpu6050.getAccZ() - 1);
+  throttlePID.setInput(0);
   throttlePID.setSetpoint(radio._remoteData.ljoystick.y);
   
   yawPID.compute();
@@ -131,6 +138,7 @@ void loop() {
       yawPID.resetIntegral();
       rollPID.resetIntegral();
       pitchPID.resetIntegral();
+      throttlePID.resetIntegral();
   }
   if (radio._remoteData.button2 == 1) {
       started = false;
