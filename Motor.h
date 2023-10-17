@@ -23,8 +23,10 @@ class Motor
         void start();
         void stop();
         void doCommand();
+        void forceCommand(unsigned long command);
         void setOffsetCoeff(float offsetCoefff) { this->offsetCoeff = offsetCoefff; };
         void setCommand(unsigned long command) { ESC_command = chechBoundaries(command * offsetCoeff); };
+        unsigned long getCommand() { return ESC_command;};
     private:
         int pin;
         unsigned long timer = 0;

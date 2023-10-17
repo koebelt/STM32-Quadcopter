@@ -29,6 +29,12 @@ class MPU6050{
   void writeMPU6050(byte reg, byte data);
   byte readMPU6050(byte reg);
 
+  // getRawGyroX = ACC Angulaire
+  // getGyroX = ACC ANGULAIRE stable
+  // getAccAngleX = ANGLE
+  // getGyroAngleX = ANGLE stable
+  // getAngleX = Angle plus stable
+
   int16_t getRawAccX(){ return rawAccX; };
   int16_t getRawAccY(){ return rawAccY; };
   int16_t getRawAccZ(){ return rawAccZ; };
